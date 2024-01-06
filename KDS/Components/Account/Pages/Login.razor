@@ -1,0 +1,36 @@
+﻿@page "/Account/Login"
+
+
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Identity
+
+<PageTitle>Log in</PageTitle>
+
+<h1>Log in with</h1>
+<div>
+    <div class="col-md-6 col-md-offset-2">
+        <section>
+            <hr/>
+            <ExternalLoginPicker/>
+        </section>
+    </div>
+</div>
+
+@code {
+    private string? errorMessage;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    [SupplyParameterFromQuery]
+    private string? ReturnUrl { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (HttpMethods.IsGet(HttpContext.Request.Method))
+        {
+            // Clear the existing external cookie to ensure a clean login process
+            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+        }
+    }
+}
