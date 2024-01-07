@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using KDS.Components.Account.Pages;
+using KDS.Components.Account.Pages.Manage;
 using KDS.Data;
 
 namespace Microsoft.AspNetCore.Routing;
