@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using KDS.Components;
 using KDS.Components.Account;
 using KDS.Data;
+using MudBlazor.Services;
+using KDS.Components.Donations;
 
 namespace KDS;
 
@@ -21,6 +23,7 @@ public class Program
         builder.Services.AddScoped<IdentityUserAccessor>();
         builder.Services.AddScoped<IdentityRedirectManager>();
         builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
+        builder.Services.AddMudServices();
 
         builder.Services.AddAuthentication(options =>
             {
@@ -73,7 +76,7 @@ public class Program
         {
             app.UseExceptionHandler("/Error");
             // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-            app.UseHsts();
+            //app.UseHsts();
         }
 
         app.UseHttpsRedirection();
@@ -86,6 +89,7 @@ public class Program
 
         // Add additional endpoints required by the Identity /Account Razor components.
         app.MapAdditionalIdentityEndpoints();
+        app.MapAdditionalDonationEndpoints();
 
         app.Run();
     }

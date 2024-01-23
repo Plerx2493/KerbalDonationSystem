@@ -11,10 +11,10 @@ internal static class DonationEndpointRouteBuilderExtensions{
         ArgumentNullException.ThrowIfNull(endpoints);
         var donationsGroup = endpoints.MapGroup("/Donations");
 
-        donationsGroup.MapGet("/{channel}/after", [AllowAnonymous, ] ([FromServices] DonationService service, string channel, DateTime time) => {
+        donationsGroup.MapGet("/{channel}/after", [AllowAnonymous] async ([FromServices] DonationService service, [FromRoute] string channel, [FromBody] DateTime time) =>
+        {
             var donations = await service.GetDonationsAfterAsync(channel, time);
-            var donationDtos = donations.Select(x => x.ToDto()).ToList();
-            return new ActionResult<IEnumerable<Donation>>(donationDtos);
+            return new ActionResult<IEnumerable<Donation>>(donations);
         });
 
         return donationsGroup;

@@ -11,8 +11,7 @@ public class TwitchService : IHostedService
     {
         
     }
-
-
+    
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         client = new TwitchPubSub();
