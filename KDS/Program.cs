@@ -23,6 +23,11 @@ public class Program
         twitchApi.Settings.ClientId = builder.Configuration["Authentication:Twitch:ClientId"] ??
                                       throw new InvalidOperationException("Twitch ClientId not found.");
 
+        //Add application services to the container.
+        builder.Services.AddSingleton(twitchApi);
+        builder.Services.AddSingleton<TwitchAuthService>();
+        builder.Services.AddSingleton<DonationService>();
+        
         // Add services to the container.
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
