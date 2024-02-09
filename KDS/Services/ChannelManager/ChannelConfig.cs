@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace KDS.Services.ChannelManager;
+﻿namespace KDS.Services.ChannelManager;
 
 public class ChannelConfig
 {

@@ -1,4 +1,3 @@
-using System;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -8,12 +7,7 @@ using KDS.Data;
 using MudBlazor.Services;
 using KDS.Components.Donations;
 using KDS.Services.Donations;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using TwitchLib.Api;
 
 namespace KDS;
@@ -25,9 +19,14 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
         StaticWebAssetsLoader.UseStaticWebAssets(builder.Environment, builder.Configuration);
 
-        var twitchApi = new TwitchAPI();
-        twitchApi.Settings.ClientId = builder.Configuration["Authentication:Twitch:ClientId"] ??
-                                      throw new InvalidOperationException("Twitch ClientId not found.");
+        var twitchApi = new TwitchAPI
+        {
+            Settings =
+            {
+                ClientId = builder.Configuration["Authentication:Twitch:ClientId"] ??
+                           throw new InvalidOperationException("Twitch ClientId not found.")
+            }
+        };
 
         //Add application services to the container.
         builder.Services.AddSingleton(twitchApi);

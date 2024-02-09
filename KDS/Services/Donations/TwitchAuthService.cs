@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Collections.Concurrent;
 using KDS.Data;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using TwitchLib.Api;
 
 namespace KDS.Services.Donations;
@@ -15,6 +12,8 @@ public class TwitchAuthService
     private TwitchAPI _twitchApi;
     private string _clientId;
     private string _clientSecret;
+    
+    private ConcurrentDictionary<ulong, TwitchAPI> _twitchApis = new();
 
     public TwitchAuthService(IDbContextFactory<ApplicationDbContext> contextFactory, TwitchAPI twitchApi, IConfiguration configuration)
     {
@@ -41,8 +40,8 @@ public class TwitchAuthService
         if (auth.ExpiresAt < DateTimeOffset.UtcNow)
         {
             var token = await _twitchApi.Auth.RefreshAuthTokenAsync(auth.RefreshToken, _clientSecret , _clientId);
-            auth.AccessToken = token.AccessToken;
-            auth.RefreshToken = token.RefreshToken;
+            auth.AccessToken = token!.AccessToken;
+            auth.RefreshToken = token!.RefreshToken;
             auth.ExpiresAt = DateTimeOffset.UtcNow.AddSeconds(token.ExpiresIn);
             await context.SaveChangesAsync();
         }
@@ -74,5 +73,19 @@ public class TwitchAuthService
     {
         var auth = TwitchAuth.FromAuthTokens(tokens, channelId);
         await SetAuth(channelId, auth);
+    }
+    
+    public TwitchAPI GetTwitchApi(ulong channelId)
+    {
+        if (_twitchApis.TryGetValue(channelId, out var api))
+        {
+            return api;
+        }
+        
+        var auth = GetAuth(channelId).Result;
+        var newApi = new TwitchAPI();
+        newApi.Settings.AccessToken = auth.AccessToken;
+        _twitchApis[channelId] = newApi;
+        return newApi;
     }
 }
