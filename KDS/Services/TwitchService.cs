@@ -1,4 +1,8 @@
-﻿using TwitchLib.PubSub;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
+using TwitchLib.PubSub;
 using TwitchLib.PubSub.Events;
 
 namespace KDS.Services;
