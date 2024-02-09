@@ -6,6 +6,9 @@ using KDS.Components.Account;
 using KDS.Data;
 using MudBlazor.Services;
 using KDS.Components.Donations;
+using KDS.Services.Donations;
+using Microsoft.AspNetCore.Hosting.StaticWebAssets;
+using TwitchLib.Api;
 
 namespace KDS;
 
@@ -14,6 +17,11 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+        StaticWebAssetsLoader.UseStaticWebAssets(builder.Environment, builder.Configuration);
+
+        var twitchApi = new TwitchAPI();
+        twitchApi.Settings.ClientId = builder.Configuration["Authentication:Twitch:ClientId"] ??
+                                      throw new InvalidOperationException("Twitch ClientId not found.");
 
         // Add services to the container.
         builder.Services.AddRazorComponents()
@@ -34,36 +42,37 @@ public class Program
             {
                 config.UsePkce = true;
                 config.SaveTokens = true;
-
+                config.Scope.Add("channel:manage:redemptions");
+                config.Scope.Add("channel:read:vips");
+                config.Scope.Add("moderation:read");
+                
                 config.ClientId = builder.Configuration["Authentication:Twitch:ClientId"] ??
                                   throw new InvalidOperationException("Twitch ClientId not found.");
                 
                 config.ClientSecret = builder.Configuration["Authentication:Twitch:ClientSecret"] ?? 
                                       throw new InvalidOperationException("Twitch ClientSecret not found.");
-                
-                config.Events.OnCreatingTicket +=  (context) =>
-                {
-                    var services = context.HttpContext.RequestServices; 
-                    //var tokenRepo = services.GetRequiredService<ITokenRepository>();
-                    //tokenRepo.SetToken(context);
-
-                    return Task.CompletedTask;
-                };
             })
             .AddIdentityCookies();
 
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
                                throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-        builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        
+        builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
             options.UseSqlite(connectionString));
-        builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+        
+        
 
-        builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+        builder.Services.AddIdentityCore<ApplicationUser>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddSignInManager()
             .AddDefaultTokenProviders();
 
         builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+        
+        if (builder.Environment.IsDevelopment())
+        {
+            builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+        }
 
         var app = builder.Build();
 
@@ -71,6 +80,8 @@ public class Program
         if (app.Environment.IsDevelopment())
         {
             app.UseMigrationsEndPoint();
+            app.UseDeveloperExceptionPage();
+            Console.WriteLine("Development mode");
         }
         else
         {

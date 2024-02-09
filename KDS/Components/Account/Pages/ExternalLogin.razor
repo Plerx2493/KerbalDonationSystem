@@ -7,30 +7,37 @@
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
 @using KDS.Data
+@using KDS.Services.Donations
+@using Microsoft.EntityFrameworkCore
 
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 @inject IUserStore<ApplicationUser> UserStore
-@inject IEmailSender<ApplicationUser> EmailSender
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
 @inject ILogger<ExternalLogin> Logger
+@inject IDbContextFactory<ApplicationDbContext> DbContextFactory
+@inject TwitchAuthService TwitchAuthService
 
 <PageTitle>Register</PageTitle>
-
-<StatusMessage Message="@message"/>
 <h1>Register</h1>
 <h2>Associate your @ProviderDisplayName account.</h2>
 <hr/>
 
-<div class="alert alert-info">
-    You've successfully authenticated with <strong>@ProviderDisplayName</strong>.
-</div>
+<StatusMessage Message="@message"/>
+
+@if (loginSucceeded)
+{
+    <div class="alert alert-info">
+        You've successfully authenticated with <strong>@ProviderDisplayName</strong>.
+    </div>
+}
 
 @code {
     public const string LoginCallbackAction = "LoginCallback";
 
     private string? message;
+    private bool loginSucceeded;
     private ExternalLoginInfo externalLoginInfo = default!;
 
     [CascadingParameter]
@@ -38,6 +45,12 @@
 
     [SupplyParameterFromQuery]
     private string? RemoteError { get; set; }
+    
+    [SupplyParameterFromQuery(Name = "error")]
+    private string? Error { get; set; }
+    
+    [SupplyParameterFromQuery(Name = "error_description")]
+    private string? ErrorDescription { get; set; }
 
     [SupplyParameterFromQuery]
     private string? ReturnUrl { get; set; }
@@ -49,9 +62,10 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (RemoteError is not null)
+        if (Error is not null)
         {
-            RedirectManager.RedirectToWithStatus("Account/Login", $"Error from external provider: {RemoteError}", HttpContext);
+            var description = HttpContext.Request.Query["error_description"];
+            RedirectManager.RedirectToWithStatus("Account/Login", $"Error from external provider: \"{Error}: {ErrorDescription}\"", HttpContext);
         }
 
         var info = await SignInManager.GetExternalLoginInfoAsync();
@@ -78,6 +92,7 @@
 
     private async Task OnLoginCallbackAsync()
     {
+        await using var dbContext = await DbContextFactory.CreateDbContextAsync();
         // Sign in the user with this external login provider if the user already has a login.
         var result = await SignInManager.ExternalLoginSignInAsync(
             externalLoginInfo.LoginProvider,
@@ -85,10 +100,20 @@
             false,
             true);
 
+        var twitchChannelId = ulong.Parse(externalLoginInfo.ProviderKey);
+        
         if (result.Succeeded)
         {
+            var usr = await UserManager.FindByLoginAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey);
+            if (usr is not null)
+            {
+                await TwitchAuthService.SetAuth(twitchChannelId, externalLoginInfo.AuthenticationTokens!);
+            }
+            
+            loginSucceeded = true;
+            
             Logger.LogInformation(
-                "{Name} logged in with {LoginProvider} provider.",
+                "{Name} logged in with {LoginProvider} provider",
                 externalLoginInfo.Principal.Identity?.Name,
                 externalLoginInfo.LoginProvider);
             RedirectManager.RedirectTo(ReturnUrl);
@@ -102,7 +127,9 @@
         var user = await UserManager.FindByLoginAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey);
         if (user is not null)
         {
+            await TwitchAuthService.SetAuth(twitchChannelId, externalLoginInfo.AuthenticationTokens!);
             await SignInManager.SignInAsync(user, false, externalLoginInfo.LoginProvider);
+            loginSucceeded = true;
             RedirectManager.RedirectTo(ReturnUrl);
         }
 
@@ -110,26 +137,26 @@
         user = CreateUser();
         var twitchDisplayName = externalLoginInfo.Principal.FindFirstValue(ClaimTypes.Name);
         var externalUsernames = externalLoginInfo.Principal.FindAll(ClaimTypes.NameIdentifier).Select(claim => claim.Value).ToList();
-
+        user.TwitchId = twitchChannelId;
         await UserStore.SetUserNameAsync(user, twitchDisplayName ?? externalUsernames.First() , CancellationToken.None);
-
         var identityResult = await UserManager.CreateAsync(user);
+        
         if (identityResult.Succeeded)
         {
+            await TwitchAuthService.SetAuth(twitchChannelId, externalLoginInfo.AuthenticationTokens!);
             identityResult = await UserManager.AddLoginAsync(user, externalLoginInfo);
             if (identityResult.Succeeded)
             {
-                Logger.LogInformation("User created an account using {Name} provider.", externalLoginInfo.LoginProvider);
-
-                var userId = await UserManager.GetUserIdAsync(user);
+                Logger.LogInformation("User created an account using {Name} provider", externalLoginInfo.LoginProvider);
 
                 await SignInManager.SignInAsync(user, false, externalLoginInfo.LoginProvider);
+                loginSucceeded = true;
                 RedirectManager.RedirectTo(ReturnUrl);
             }
         }
-
-        message = $"Error: {string.Join(",", identityResult.Errors.Select(error => error.Description))}";
         
+        loginSucceeded = false;
+        message = $"Error: {string.Join(",", identityResult.Errors.Select(error => error.Description))}";
     }
 
     private ApplicationUser CreateUser()

@@ -1,11 +1,48 @@
 ﻿@page "/Channel"
+@using Microsoft.AspNetCore.Authorization
 @rendermode InteractiveServer
+
+@attribute [Authorize]
 
 <h3>Channel</h3>
 
-
+<AuthorizeView>
+    <MudGrid Spacing="3" Justify="Justify.Center">
+        <MudItem>
+            <MudCard Style="background-color: #1e1c1c;" Elevation="5" Class="pa-4 rounded">
+                <MudCardContent Style=" color: #7a7a7a">
+                    <MudPaper/>
+                    <MudText>Story of the day</MudText>
+                    <MudText Typo="Typo.body2">The quick, brown fox jumps over a lazy dog.</MudText>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton Variant="Variant.Text" Style="color: #7a7a7a">Learn More</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+        <MudItem>
+            <MudCard Style="background-color: #1e1c1c" >
+                <h1 >Card 2</h1>
+            </MudCard>
+        </MudItem>
+        <MudItem>
+            <MudCard Style="background-color: #1e1c1c">
+                <h1>Card 3</h1>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+</AuthorizeView>
 
 
 @code {
-    
+    /*
+       Schrift:
+       7a7a7a
+       Hintergrund:
+       424040
+       Karten:
+       1e1c1c
+       Akzent:
+       1e4721
+     */
 }

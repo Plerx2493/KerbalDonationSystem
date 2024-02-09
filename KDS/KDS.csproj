@@ -10,6 +10,11 @@
 
     <ItemGroup>
         <None Update="Data\app.db" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true"/>
+        <None Update="wwwroot\app.css" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true"/>
+        <None Update="wwwroot\favicon.ico" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true"/>
+        <None Update="wwwroot\KDS.app.css" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true"/>
+        <None Update="wwwroot\bootstrap.min.css" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true"/>
+        <None Update="wwwroot\bootstrap.min.css.map" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true"/>        
     </ItemGroup>
 
     <ItemGroup>
@@ -19,6 +24,7 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.0"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0"/>
         <PackageReference Include="MudBlazor" Version="6.12.0" />
+        <PackageReference Include="TwitchLib.Api" Version="3.10.0-preview-e47ba7f" />
         <PackageReference Include="TwitchLib.PubSub" Version="4.0.0-preview-f833b1ab1ebef37618dba3fbb1e0a661ff183af5" />
     </ItemGroup>
 
@@ -27,5 +33,4 @@
             <Link>.dockerignore</Link>
         </Content>
     </ItemGroup>
-
 </Project>
