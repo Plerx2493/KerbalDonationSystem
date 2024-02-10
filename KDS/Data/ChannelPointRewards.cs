@@ -1,7 +1,18 @@
-﻿namespace KDS.Services.ChannelManager;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace KDS.Data;
 
 public class ChannelPointRewards
 {
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity), Key]
+    public ulong Id { get; set; }
+    
+    /// <summary>
+    /// Id of the channel that the reward is for
+    /// </summary>
+    public ulong ChannelId { get; set; }
+    
     /// <summary>
     /// Twitch Channel Point Reward ID
     /// </summary>

@@ -6,7 +6,7 @@ using KDS.Components.Account;
 using KDS.Data;
 using MudBlazor.Services;
 using KDS.Components.Donations;
-using KDS.Services.Donations;
+using KDS.Services;
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using TwitchLib.Api;
 
@@ -32,6 +32,7 @@ public class Program
         builder.Services.AddSingleton(twitchApi);
         builder.Services.AddSingleton<TwitchAuthService>();
         builder.Services.AddSingleton<DonationService>();
+        builder.Services.AddSingleton<ApiAuthService>();
         
         // Add services to the container.
         builder.Services.AddRazorComponents()
@@ -52,6 +53,9 @@ public class Program
             {
                 config.UsePkce = true;
                 config.SaveTokens = true;
+                
+                config.AccessDeniedPath = "/AccessDenied";
+                
                 config.Scope.Add("channel:manage:redemptions");
                 config.Scope.Add("channel:read:vips");
                 config.Scope.Add("moderation:read");
@@ -66,12 +70,15 @@ public class Program
 
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
                                throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-        
-        builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
-            options.UseSqlite(connectionString));
-        
-        
 
+        builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
+        {
+            options.UseSqlite(connectionString);
+            
+            if (builder.Environment.IsDevelopment())
+                options.EnableDetailedErrors();
+        });
+        
         builder.Services.AddIdentityCore<ApplicationUser>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddSignInManager()

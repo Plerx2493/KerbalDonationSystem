@@ -1,0 +1,17 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudText>You can only see this key once. If you lose it, you have to recreate one</MudText>
+        <MudText Typo="Typo.caption">@apiKey</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    [Parameter] public string apiKey { get; set; }
+    
+    void Submit() => MudDialog.Close(DialogResult.Ok(true));
+}

@@ -8,6 +8,14 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 {
     public DbSet<TwitchAuth> TwitchAuths { get; set; } = null!;
     
+    public DbSet<Donation> Donations { get; set; } = null!;
+    
+    public DbSet<ChannelPointRewards> ChannelPointRewards { get; set; } = null!;
+    
+    public DbSet<ChannelConfig> ChannelConfigs { get; set; } = null!;
+    
+    public DbSet<ApiAuth> ApiAuths { get; set; } = null!;
+    
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using TwitchLib.Api;
 
-namespace KDS.Services.Donations;
+namespace KDS.Services;
 
 public class TwitchAuthService
 {
@@ -27,7 +27,7 @@ public class TwitchAuthService
                         throw new InvalidOperationException("Twitch ClientSecret not found.");
     }
     
-    public async Task<TwitchAuth> GetAuth(ulong channelId)
+    public async Task<TwitchAuth> GetAuth(ulong channelId, bool refresh = true)
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
         var auth = await context.TwitchAuths.FirstOrDefaultAsync(a => a.ChannelId == channelId);
@@ -37,7 +37,7 @@ public class TwitchAuthService
             throw new KeyNotFoundException("TwitchAuth not found");
         }
         
-        if (auth.ExpiresAt < DateTimeOffset.UtcNow)
+        if (auth.ExpiresAt < DateTimeOffset.UtcNow && refresh)
         {
             var token = await _twitchApi.Auth.RefreshAuthTokenAsync(auth.RefreshToken, _clientSecret , _clientId);
             auth.AccessToken = token!.AccessToken;

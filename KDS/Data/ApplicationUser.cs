@@ -10,6 +10,7 @@ public class ApplicationUser : IdentityUser
     public ulong TwitchId { get; set; }
     
     public TwitchAuth? TwitchAuth { get; set; }
+    public ApiAuth? ApiAuth { get; set; }
 }
 
 public class ApplicationUserConfig : IEntityTypeConfiguration<ApplicationUser>
@@ -20,6 +21,12 @@ public class ApplicationUserConfig : IEntityTypeConfiguration<ApplicationUser>
             .WithOne()
             .HasForeignKey<TwitchAuth>(x => x.ChannelId)
             .HasPrincipalKey<ApplicationUser>(x => x.TwitchId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(x => x.ApiAuth)
+            .WithOne()
+            .HasForeignKey<ApiAuth>(x => x.UserId)
+            .HasPrincipalKey<ApplicationUser>(x => x.Id)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

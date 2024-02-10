@@ -3,44 +3,22 @@ using System;
 using KDS.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace KDS.Migrations
+namespace KDS.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240210163007_AddApiKeysAndChannelManager")]
+    partial class AddApiKeysAndChannelManager
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.0");
-
-            modelBuilder.Entity("KDS.Data.ApiAuth", b =>
-                {
-                    b.Property<ulong>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("ApiKey")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
-
-                    b.ToTable("ApiAuths");
-                });
 
             modelBuilder.Entity("KDS.Data.ApplicationUser", b =>
                 {
@@ -49,6 +27,9 @@ namespace KDS.Migrations
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("ApiKey")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -371,15 +352,6 @@ namespace KDS.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("KDS.Data.ApiAuth", b =>
-                {
-                    b.HasOne("KDS.Data.ApplicationUser", null)
-                        .WithOne("ApiAuth")
-                        .HasForeignKey("KDS.Data.ApiAuth", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("KDS.Data.ChannelPointRewards", b =>
                 {
                     b.HasOne("KDS.Data.ChannelConfig", null)
@@ -450,8 +422,6 @@ namespace KDS.Migrations
 
             modelBuilder.Entity("KDS.Data.ApplicationUser", b =>
                 {
-                    b.Navigation("ApiAuth");
-
                     b.Navigation("TwitchAuth");
                 });
 
