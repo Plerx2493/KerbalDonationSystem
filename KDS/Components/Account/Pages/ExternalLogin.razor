@@ -90,7 +90,6 @@
 
     private async Task OnLoginCallbackAsync()
     {
-        await using var dbContext = await DbContextFactory.CreateDbContextAsync();
         // Sign in the user with this external login provider if the user already has a login.
         var result = await SignInManager.ExternalLoginSignInAsync(
             externalLoginInfo.LoginProvider,

@@ -9,11 +9,11 @@ namespace KDS.Services;
 public class TwitchAuthService
 {
     private IDbContextFactory<ApplicationDbContext> _contextFactory;
-    private TwitchAPI _twitchApi;
-    private string _clientId;
-    private string _clientSecret;
+    private readonly TwitchAPI _twitchApi;
+    private readonly string _clientId;
+    private readonly string _clientSecret;
     
-    private ConcurrentDictionary<ulong, TwitchAPI> _twitchApis = new();
+    private readonly ConcurrentDictionary<ulong, TwitchAPI> _twitchApis = new();
 
     public TwitchAuthService(IDbContextFactory<ApplicationDbContext> contextFactory, TwitchAPI twitchApi, IConfiguration configuration)
     {
@@ -83,8 +83,14 @@ public class TwitchAuthService
         }
         
         var auth = GetAuth(channelId).Result;
-        var newApi = new TwitchAPI();
-        newApi.Settings.AccessToken = auth.AccessToken;
+        var newApi = new TwitchAPI
+        {
+            Settings =
+            {
+                ClientId = _clientId,
+                AccessToken = auth.AccessToken
+            }
+        };
         _twitchApis[channelId] = newApi;
         return newApi;
     }

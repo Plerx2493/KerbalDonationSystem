@@ -46,7 +46,7 @@ public class ApiAuthService
         
         await using var context = await ContextFactory.CreateDbContextAsync();
         
-        ApiAuth? old = context.ApiAuths.FirstOrDefault(x => x.UserId == user.Id);
+        var old = context.ApiAuths.FirstOrDefault(x => x.UserId == user.Id);
         if (old is not null)
             context.ApiAuths.Remove(old);
         

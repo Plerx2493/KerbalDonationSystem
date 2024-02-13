@@ -6,6 +6,16 @@
 
 <h3>Channel</h3>
 
+<form class="form-horizontal" action="Account/PerformExternalLogin" method="post">
+    <div>
+        <AntiforgeryToken/>
+        <input type="hidden" name="ReturnUrl" value="@ReturnUrl"/>
+        <p>
+            <button type="submit" class="btn btn-primary" name="provider" value="TwitchElevated" title="Log in using your Twitch account">Elevate Permissions</button>
+        </p>
+    </div>
+</form>
+
 <AuthorizeView>
     <MudGrid Spacing="3" Justify="Justify.Center">
         <MudItem>
@@ -35,6 +45,8 @@
 
 
 @code {
+    
+    string ReturnUrl { get; set; } = "/Channel";
     /*
        Schrift:
        7a7a7a

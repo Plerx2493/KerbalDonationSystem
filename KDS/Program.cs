@@ -7,6 +7,7 @@ using KDS.Data;
 using MudBlazor.Services;
 using KDS.Components.Donations;
 using KDS.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using TwitchLib.Api;
 
@@ -49,12 +50,29 @@ public class Program
                 options.DefaultScheme = IdentityConstants.ApplicationScheme;
                 options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
             })
-            .AddTwitch(config =>
+            .AddTwitch("Twitch",config =>
+            {
+                config.UsePkce = true;
+                config.SaveTokens = true;
+                config.AccessDeniedPath = "/AccessDenied";
+                config.ClaimsIssuer = "Twitch";
+                
+                config.Scope.Add("channel:manage:redemptions");
+                
+                config.ClientId = builder.Configuration["Authentication:Twitch:ClientId"] ??
+                                  throw new InvalidOperationException("Twitch ClientId not found.");
+                
+                config.ClientSecret = builder.Configuration["Authentication:Twitch:ClientSecret"] ?? 
+                                      throw new InvalidOperationException("Twitch ClientSecret not found.");
+            })
+            .AddTwitch("TwitchElevated",config =>
             {
                 config.UsePkce = true;
                 config.SaveTokens = true;
                 
                 config.AccessDeniedPath = "/AccessDenied";
+                config.CallbackPath = "/signin-twitch-elevated";
+                config.ClaimsIssuer = "Twitch";
                 
                 config.Scope.Add("channel:manage:redemptions");
                 config.Scope.Add("channel:read:vips");

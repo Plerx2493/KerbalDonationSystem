@@ -3,15 +3,14 @@ using TwitchLib.PubSub.Events;
 
 namespace KDS.Services;
 
-public class TwitchService : IHostedService
+public class TwitchService
 {
     private static TwitchPubSub client;
     
     public TwitchService()
     {
-        
     }
-    
+
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         client = new TwitchPubSub();
@@ -23,7 +22,7 @@ public class TwitchService : IHostedService
 
         client.ListenToVideoPlayback("channelUsername");
         client.ListenToChannelPoints("channelTwitchID");
-            
+
         await client.ConnectAsync();
     }
 
@@ -34,15 +33,15 @@ public class TwitchService : IHostedService
 
     private static void onChannelPointsRewardRedeemed(object? sender, OnChannelPointsRewardRedeemedArgs e)
     {
-        throw new NotImplementedException();
+        Console.WriteLine($"Reward redeemed! User: {e.RewardRedeemed.Redemption.User.DisplayName}, Reward: {e.RewardRedeemed.Redemption.Reward.Title}");
     }
 
-    private static void onPubSubServiceConnected(object? sender, EventArgs e)
+    private void onPubSubServiceConnected(object? sender, EventArgs e)
     {
         // SendTopics accepts an oauth optionally, which is necessary for some topics
         client.SendTopics();
     }
-        
+
     private static void onListenResponse(object? sender, OnListenResponseArgs e)
     {
         if (!e.Successful)
