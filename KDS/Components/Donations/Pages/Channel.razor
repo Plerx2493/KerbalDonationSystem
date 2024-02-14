@@ -1,52 +1,89 @@
 ﻿@page "/Channel"
 @using Microsoft.AspNetCore.Authorization
-@rendermode InteractiveServer
+@using KDS.Components.Account
+@using KDS.Data
+@using KDS.Services
+
+@inject NavigationManager NavigationManager
+@inject IdentityUserAccessor UserAccessor
+@inject TwitchAuthService TwitchAuthService
 
 @attribute [Authorize]
 
 <h3>Channel</h3>
 
-<form class="form-horizontal" action="Account/PerformExternalLogin" method="post">
-    <div>
-        <AntiforgeryToken/>
-        <input type="hidden" name="ReturnUrl" value="@ReturnUrl"/>
-        <p>
-            <button type="submit" class="btn btn-primary" name="provider" value="TwitchElevated" title="Log in using your Twitch account">Elevate Permissions</button>
-        </p>
-    </div>
-</form>
+@if(!Auth?.IsElevated ?? true){
+    <p>If you want to give your moderators access to your configuration or want modifier for mods and Vips you have to give this app more permissions. <br/>
+       "channel:read:vips" this is needed to get the vips of your channel. <br/>
+       "moderation:read" this is needed to get the moderators of your channel. <br/>
+       Click the button below to elevate the permissions.</p>
+    
+    <form class="form-horizontal" action="Account/PerformExternalLogin" method="post">
+        <div>
+            <AntiforgeryToken/>
+            <input type="hidden" name="ReturnUrl" value="@ReturnUrl"/>
+            <p>
+                <button style="background-color: #365d39" type="submit" class="btn btn-primary" name="provider" value="TwitchElevated" title="Log in using your Twitch account">Elevate Permissions</button>
+            </p>
+        </div>
+    </form>
+}
 
-<AuthorizeView>
-    <MudGrid Spacing="3" Justify="Justify.Center">
-        <MudItem>
-            <MudCard Style="background-color: #1e1c1c;" Elevation="5" Class="pa-4 rounded">
-                <MudCardContent Style=" color: #7a7a7a">
-                    <MudPaper/>
-                    <MudText>Story of the day</MudText>
-                    <MudText Typo="Typo.body2">The quick, brown fox jumps over a lazy dog.</MudText>
-                </MudCardContent>
-                <MudCardActions>
-                    <MudButton Variant="Variant.Text" Style="color: #7a7a7a">Learn More</MudButton>
-                </MudCardActions>
-            </MudCard>
-        </MudItem>
-        <MudItem>
-            <MudCard Style="background-color: #1e1c1c" >
-                <h1 >Card 2</h1>
-            </MudCard>
-        </MudItem>
-        <MudItem>
-            <MudCard Style="background-color: #1e1c1c">
-                <h1>Card 3</h1>
-            </MudCard>
-        </MudItem>
-    </MudGrid>
-</AuthorizeView>
+<MudGrid Spacing="3" Justify="Justify.Center">
+    <MudItem>
+        <MudCard Style="background-color: #1e1c1c;" Elevation="5" Class="pa-4 rounded">
+            <MudCardContent Style=" color: #7a7a7a">
+                <MudPaper/>
+                <MudText>Story of the day</MudText>
+                <MudText Typo="Typo.body2">The quick, brown fox jumps over a lazy dog.</MudText>
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton Variant="Variant.Text" Style="color: #365d39">Learn More</MudButton>
+            </MudCardActions>
+        </MudCard>
+    </MudItem>
+    <MudItem>
+        <MudCard Style="background-color: #1e1c1c">
+            <h1 >Card 2</h1>
+        </MudCard>
+    </MudItem>
+    <MudItem>
+        <MudCard Style="background-color: #1e1c1c">
+            <h1>Card 3</h1>
+        </MudCard>
+    </MudItem>
+</MudGrid>
 
 
 @code {
-    
+    private ApplicationUser? user;
+    private TwitchAuth? Auth;
+
     string ReturnUrl { get; set; } = "/Channel";
+    
+    [CascadingParameter]
+    private HttpContext? HttpContext { get; set; }
+    
+    protected override async void OnParametersSet()
+    {
+        if (HttpContext is null)
+        {
+            // If this code runs, we're currently rendering in interactive mode, so there is no HttpContext.
+            // The identity pages need to set cookies, so they require an HttpContext. To achieve this we
+            // must transition back from interactive mode to a server-rendered page.
+            NavigationManager.Refresh(true);
+            return;
+        }
+        
+        user = await UserAccessor.GetRequiredUserAsync(HttpContext) ?? throw new Exception("User not found");
+        Auth = await TwitchAuthService.GetAuth(user.TwitchId) ?? throw new Exception("No Auth found");
+        
+        
+
+    }
+    
+    
+    
     /*
        Schrift:
        7a7a7a
@@ -55,6 +92,6 @@
        Karten:
        1e1c1c
        Akzent:
-       1e4721
+       365d39
      */
 }

@@ -44,6 +44,10 @@ public class Program
         builder.Services.AddScoped<IdentityRedirectManager>();
         builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
         builder.Services.AddMudServices();
+        builder.Services.AddResponseCompression(options =>
+        {
+            options.EnableForHttps = true;
+        });
 
         builder.Services.AddAuthentication(options =>
             {
@@ -126,7 +130,7 @@ public class Program
         }
 
         app.UseHttpsRedirection();
-
+        app.UseResponseCompression();
         app.UseStaticFiles();
         app.UseAntiforgery();
 

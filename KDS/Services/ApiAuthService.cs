@@ -8,12 +8,10 @@ namespace KDS.Services;
 public class ApiAuthService
 {
     private ConcurrentDictionary<string, ApiAuth> ApiAuths { get; } = new();
-    private UserManager<ApplicationUser> UserManager { get; }
     private IDbContextFactory<ApplicationDbContext> ContextFactory { get; }
     
-    public ApiAuthService(UserManager<ApplicationUser> userManager, IDbContextFactory<ApplicationDbContext> contextFactory)
+    public ApiAuthService(IDbContextFactory<ApplicationDbContext> contextFactory)
     {
-        UserManager = userManager;
         ContextFactory = contextFactory;
     }
     

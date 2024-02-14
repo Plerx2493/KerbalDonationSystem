@@ -64,14 +64,15 @@ public class TwitchAuthService
             existentAuth.AccessToken = auth.AccessToken;
             existentAuth.RefreshToken = auth.RefreshToken;
             existentAuth.ExpiresAt = auth.ExpiresAt;
+            existentAuth.IsElevated = auth.IsElevated;
         }
         
         await context.SaveChangesAsync();
     }
     
-    public async Task SetAuth(ulong channelId, IEnumerable<AuthenticationToken> tokens)
+    public async Task SetAuth(ulong channelId, IEnumerable<AuthenticationToken> tokens, bool isElevated = false)
     {
-        var auth = TwitchAuth.FromAuthTokens(tokens, channelId);
+        var auth = TwitchAuth.FromAuthTokens(tokens, channelId, isElevated);
         await SetAuth(channelId, auth);
     }
     

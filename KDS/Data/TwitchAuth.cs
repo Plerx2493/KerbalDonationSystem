@@ -15,10 +15,12 @@ public class TwitchAuth
     
     public string AccessToken { get; set; } = null!;
     public string RefreshToken { get; set; } = null!;
+    public bool IsElevated { get; set; }
+    public bool IsExpired => ExpiresAt < DateTimeOffset.UtcNow;
     public DateTimeOffset ExpiresAt { get; set; }
     public ulong ChannelId { get; set; }
 
-    public static TwitchAuth FromAuthTokens(IEnumerable<AuthenticationToken> tokens, ulong channelId)
+    public static TwitchAuth FromAuthTokens(IEnumerable<AuthenticationToken> tokens, ulong channelId, bool isElevated = false)
     {
         var auth = new TwitchAuth();
         foreach (var token in tokens)
@@ -39,6 +41,7 @@ public class TwitchAuth
             }
         }
 
+        auth.IsElevated = isElevated;
         auth.ChannelId = channelId;
         return auth;
     }

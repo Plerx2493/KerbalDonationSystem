@@ -90,6 +90,13 @@
 
     private async Task OnLoginCallbackAsync()
     {
+        bool isElevated = false;
+        if (externalLoginInfo.LoginProvider == "TwitchElevated")
+        {
+            externalLoginInfo.LoginProvider = "Twitch";
+            isElevated = true;
+        }
+        
         // Sign in the user with this external login provider if the user already has a login.
         var result = await SignInManager.ExternalLoginSignInAsync(
             externalLoginInfo.LoginProvider,
@@ -104,7 +111,7 @@
             var usr = await UserManager.FindByLoginAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey);
             if (usr is not null)
             {
-                await TwitchAuthService.SetAuth(twitchChannelId, externalLoginInfo.AuthenticationTokens!);
+                await TwitchAuthService.SetAuth(twitchChannelId, externalLoginInfo.AuthenticationTokens!, isElevated);
             }
             
             loginSucceeded = true;
@@ -124,7 +131,7 @@
         var user = await UserManager.FindByLoginAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey);
         if (user is not null)
         {
-            await TwitchAuthService.SetAuth(twitchChannelId, externalLoginInfo.AuthenticationTokens!);
+            await TwitchAuthService.SetAuth(twitchChannelId, externalLoginInfo.AuthenticationTokens!, isElevated);
             await SignInManager.SignInAsync(user, false, externalLoginInfo.LoginProvider);
             loginSucceeded = true;
             RedirectManager.RedirectTo(ReturnUrl);
@@ -140,7 +147,7 @@
         
         if (identityResult.Succeeded)
         {
-            await TwitchAuthService.SetAuth(twitchChannelId, externalLoginInfo.AuthenticationTokens!);
+            await TwitchAuthService.SetAuth(twitchChannelId, externalLoginInfo.AuthenticationTokens!, isElevated);
             identityResult = await UserManager.AddLoginAsync(user, externalLoginInfo);
             if (identityResult.Succeeded)
             {
