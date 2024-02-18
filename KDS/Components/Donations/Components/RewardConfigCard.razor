@@ -1,0 +1,109 @@
+﻿@using MudBlazor
+@using Microsoft.EntityFrameworkCore
+@using KDS.Data
+
+@inject IDbContextFactory<ApplicationDbContext> ContextFactory
+
+
+@if (Reward is not null)
+{
+    <MudItem>
+
+
+        <form class="form-horizontal" action="Account/PerformExternalLogin" method="post">
+            <AntiforgeryToken/>
+            <MudCard Style="background-color: #1e1c1c;" Elevation="5" Class="pa-4 rounded">
+                <MudTextField @bind-Value="Reward.Name" Label="Name"/>
+                <MudTextField @bind-Value="Reward.Cost" Label="Cost"/>
+                <MudTextField @bind-Value="Reward.Prompt" Label="Prompt"/>
+                <MudTextField @bind-Value="Reward.Value" Label="Value"/>
+                <MudSwitch @bind-Checked="Reward.IsEnabled" Label="Is Enabled"/>
+                
+                <input type="hidden" name="Name" value="@Reward.Name"/>
+                <input type="hidden" name="Cost" value="@Reward.Cost"/>
+                <input type="hidden" name="Prompt" value="@Reward.Prompt"/>
+                <input type="hidden" name="Value" value="@Reward.Value"/>
+                <input type="hidden" name="IsEnabled" value="@Reward.IsEnabled"/>
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary">Save edit</MudButton>
+            </MudCard>
+        </form>
+    </MudItem>
+}
+else
+{
+    <MudItem>
+        <form class="form-horizontal" action="Account/PerformExternalLogin" method="post">
+            <AntiforgeryToken/>
+            <MudCard Style="background-color: #1e1c1c;" Elevation="5" Class="pa-4 rounded">
+                <MudTextField @bind-Value="Reward.Name" Label="Name"/>
+                <MudTextField @bind-Value="Reward.Cost" Label="Cost"/>
+                <MudTextField @bind-Value="Reward.Prompt" Label="Prompt"/>
+                <MudTextField @bind-Value="Reward.Value" Label="Value"/>
+                <MudSwitch @bind-Checked="Reward.IsEnabled" Label="Is Enabled"/>
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary">Create</MudButton>
+            </MudCard>
+        </form>
+    </MudItem>
+}
+
+
+@code {
+
+    [Parameter]
+    public int? RewardId { get; set; }
+
+    [Parameter]
+    public bool IsNew { get; set; }
+
+    private ChannelPointReward? Reward { get; set; }
+
+    private string RewardName { get; set; }
+    private string RewardPrompt { get; set; }
+    private string RewardCost { get; set; }
+    private string RewardValue { get; set; }
+    private bool RewardIsEnabled { get; set; }
+
+    protected override async void OnParametersSet()
+    {
+        if (IsNew)
+        {
+            RewardName = "";
+            RewardPrompt = "";
+            RewardCost = "";
+            RewardValue = "";
+            RewardIsEnabled = true;
+        }
+        else
+        {
+            await LoadReward();
+
+            if (Reward is null)
+            {
+                throw new NullReferenceException("Reward is null");
+            }
+
+            RewardName = Reward.Name;
+            RewardPrompt = Reward.Prompt;
+            RewardCost = Reward.Cost.ToString();
+            RewardValue = Reward.Value.ToString();
+            RewardIsEnabled = Reward.IsEnabled;
+        }
+    }
+
+    private async Task LoadReward()
+    {
+        await using var context = await ContextFactory.CreateDbContextAsync();
+        Reward = await context.ChannelPointRewards.FindAsync(RewardId);
+    }
+
+    /*
+     * <MudCardContent Style=" color: #7a7a7a">
+            <MudPaper/>
+            <MudText>Story of the day</MudText>
+            <MudText Typo="Typo.body2">The quick, brown fox jumps over a lazy dog.</MudText>
+        </MudCardContent>
+        <MudCardActions>
+            <MudButton Variant="Variant.Text" Style="color: #365d39">Apply</MudButton>
+        </MudCardActions>
+     */
+}

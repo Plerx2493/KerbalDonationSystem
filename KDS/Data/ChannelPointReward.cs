@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace KDS.Data;
 
-public class ChannelPointRewards
+public class ChannelPointReward
 {
     [DatabaseGenerated(DatabaseGeneratedOption.Identity), Key]
     public ulong Id { get; set; }
@@ -21,26 +21,26 @@ public class ChannelPointRewards
     /// <summary>
     /// Twitch Channel Point Reward Name
     /// </summary>
-    public string RewardName { get; set; }
+    public string Name { get; set; }
     
     /// <summary>
     /// Twitch Channel Point Reward Prompt
     /// </summary>
-    public string RewardPrompt { get; set; }
+    public string Prompt { get; set; }
     
     /// <summary>
     /// Twitch Channel Point Reward Cost
     /// </summary>
-    public int RewardCost { get; set; }
+    public int Cost { get; set; }
     
     /// <summary>
     /// Twitch Channel Point Reward Value (ksp money)
     /// </summary>
-    public int RewardValue { get; set; }
+    public int Value { get; set; }
     
     /// <summary>
     /// Twitch Channel Point Reward Is Enabled
     /// </summary>
-    public bool RewardIsEnabled { get; set; }
+    public bool IsEnabled { get; set; }
     
 }

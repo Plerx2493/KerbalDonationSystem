@@ -10,7 +10,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     
     public DbSet<Donation> Donations { get; set; } = null!;
     
-    public DbSet<ChannelPointRewards> ChannelPointRewards { get; set; } = null!;
+    public DbSet<ChannelPointReward> ChannelPointRewards { get; set; } = null!;
     
     public DbSet<ChannelConfig> ChannelConfigs { get; set; } = null!;
     

@@ -41,7 +41,7 @@ public class ChannelConfig
     /// <summary>
     /// List of configured channel point rewards
     /// </summary>
-    public List<ChannelPointRewards> ChannelPointRewards { get; set; }
+    public List<ChannelPointReward> ChannelPointRewards { get; set; }
 }
 
 public class ChannelConfigDbConfig : IEntityTypeConfiguration<ChannelConfig>

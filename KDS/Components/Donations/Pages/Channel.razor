@@ -1,6 +1,7 @@
 ﻿@page "/Channel"
 @using Microsoft.AspNetCore.Authorization
 @using KDS.Components.Account
+@using KDS.Components.Donations.Components
 @using KDS.Data
 @using KDS.Services
 
@@ -13,20 +14,7 @@
 <h3>Channel</h3>
 
 @if(!Auth?.IsElevated ?? true){
-    <p>If you want to give your moderators access to your configuration or want modifier for mods and Vips you have to give this app more permissions. <br/>
-       "channel:read:vips" this is needed to get the vips of your channel. <br/>
-       "moderation:read" this is needed to get the moderators of your channel. <br/>
-       Click the button below to elevate the permissions.</p>
-    
-    <form class="form-horizontal" action="Account/PerformExternalLogin" method="post">
-        <div>
-            <AntiforgeryToken/>
-            <input type="hidden" name="ReturnUrl" value="@ReturnUrl"/>
-            <p>
-                <button style="background-color: #365d39" type="submit" class="btn btn-primary" name="provider" value="TwitchElevated" title="Log in using your Twitch account">Elevate Permissions</button>
-            </p>
-        </div>
-    </form>
+    <TwitchElevationForm/>
 }
 
 <MudGrid Spacing="3" Justify="Justify.Center">
@@ -59,7 +47,7 @@
     private ApplicationUser? user;
     private TwitchAuth? Auth;
 
-    string ReturnUrl { get; set; } = "/Channel";
+    
     
     [CascadingParameter]
     private HttpContext? HttpContext { get; set; }

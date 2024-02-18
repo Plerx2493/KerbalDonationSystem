@@ -1,3 +1,4 @@
+using System.IO.Compression;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,7 @@ using KDS.Components.Donations;
 using KDS.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
+using Microsoft.AspNetCore.ResponseCompression;
 using TwitchLib.Api;
 
 namespace KDS;
@@ -47,6 +49,17 @@ public class Program
         builder.Services.AddResponseCompression(options =>
         {
             options.EnableForHttps = true;
+            options.Providers.Add<BrotliCompressionProvider>();
+        });
+        
+        builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
+        {
+            options.Level = CompressionLevel.Optimal;
+        });
+
+        builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+        {
+            options.Level = CompressionLevel.Optimal;
         });
 
         builder.Services.AddAuthentication(options =>
@@ -98,7 +111,9 @@ public class Program
             options.UseSqlite(connectionString);
             
             if (builder.Environment.IsDevelopment())
+            {
                 options.EnableDetailedErrors();
+            }
         });
         
         builder.Services.AddIdentityCore<ApplicationUser>()

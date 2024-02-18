@@ -76,14 +76,14 @@ public class TwitchAuthService
         await SetAuth(channelId, auth);
     }
     
-    public TwitchAPI GetTwitchApi(ulong channelId)
+    public async Task<TwitchAPI> GetTwitchApi(ulong channelId)
     {
         if (_twitchApis.TryGetValue(channelId, out var api))
         {
             return api;
         }
         
-        var auth = GetAuth(channelId).Result;
+        var auth = await GetAuth(channelId);
         var newApi = new TwitchAPI
         {
             Settings =
