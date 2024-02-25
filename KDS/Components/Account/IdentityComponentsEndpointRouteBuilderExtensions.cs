@@ -28,6 +28,7 @@ internal static class IdentityComponentsEndpointRouteBuilderExtensions
         [FromForm] string provider,
         [FromForm] string returnUrl) =>
         {
+            
             IEnumerable<KeyValuePair<string, StringValues>> query =
             [
                 new KeyValuePair<string, StringValues>("ReturnUrl", returnUrl),

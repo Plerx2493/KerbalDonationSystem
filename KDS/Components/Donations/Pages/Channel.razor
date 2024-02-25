@@ -1,13 +1,15 @@
 ﻿@page "/Channel"
+@rendermode InteractiveServer
 @using Microsoft.AspNetCore.Authorization
-@using KDS.Components.Account
 @using KDS.Components.Donations.Components
 @using KDS.Data
 @using KDS.Services
+@using Microsoft.AspNetCore.Identity
 
-@inject NavigationManager NavigationManager
-@inject IdentityUserAccessor UserAccessor
-@inject TwitchAuthService TwitchAuthService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserManager<ApplicationUser> ApplicationUserManager
+@inject TwitchAuthService TwitchAuth
+@inject ChannelManagerService ChannelManager
 
 @attribute [Authorize]
 
@@ -18,56 +20,33 @@
 }
 
 <MudGrid Spacing="3" Justify="Justify.Center">
-    <MudItem>
-        <MudCard Style="background-color: #1e1c1c;" Elevation="5" Class="pa-4 rounded">
-            <MudCardContent Style=" color: #7a7a7a">
-                <MudPaper/>
-                <MudText>Story of the day</MudText>
-                <MudText Typo="Typo.body2">The quick, brown fox jumps over a lazy dog.</MudText>
-            </MudCardContent>
-            <MudCardActions>
-                <MudButton Variant="Variant.Text" Style="color: #365d39">Learn More</MudButton>
-            </MudCardActions>
-        </MudCard>
-    </MudItem>
-    <MudItem>
-        <MudCard Style="background-color: #1e1c1c">
-            <h1 >Card 2</h1>
-        </MudCard>
-    </MudItem>
-    <MudItem>
-        <MudCard Style="background-color: #1e1c1c">
-            <h1>Card 3</h1>
-        </MudCard>
-    </MudItem>
+    @if (ChannelPointRewards is not null)
+    {
+        @foreach (var donation in ChannelPointRewards)
+        {
+            <RewardConfigCard RewardId="@donation.Id" IsNew="false"/>
+        }
+    }
+    <RewardConfigCard RewardId="@null" IsNew="true"/>
 </MudGrid>
 
 
 @code {
     private ApplicationUser? user;
     private TwitchAuth? Auth;
-
-    
+    private IEnumerable<ChannelPointReward>? ChannelPointRewards;
     
     [CascadingParameter]
     private HttpContext? HttpContext { get; set; }
     
     protected override async void OnParametersSet()
     {
-        if (HttpContext is null)
-        {
-            // If this code runs, we're currently rendering in interactive mode, so there is no HttpContext.
-            // The identity pages need to set cookies, so they require an HttpContext. To achieve this we
-            // must transition back from interactive mode to a server-rendered page.
-            NavigationManager.Refresh(true);
-            return;
-        }
+        var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        user = await ApplicationUserManager.GetUserAsync(state.User) ?? throw new Exception("No User found");
+        Auth = await TwitchAuth.GetAuth(user.TwitchId) ?? throw new Exception("No Auth found");
+        ChannelPointRewards = await ChannelManager.GetChannelPointRewardsAsync(Auth.ChannelId);
         
-        user = await UserAccessor.GetRequiredUserAsync(HttpContext) ?? throw new Exception("User not found");
-        Auth = await TwitchAuthService.GetAuth(user.TwitchId) ?? throw new Exception("No Auth found");
-        
-        
-
+        StateHasChanged();
     }
     
     

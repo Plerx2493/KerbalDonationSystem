@@ -43,4 +43,8 @@ public class ChannelPointReward
     /// </summary>
     public bool IsEnabled { get; set; }
     
+    /// <summary>
+    /// Timeout after reward is redeemed
+    /// </summary>
+    public int? Timeout { get; set; }
 }

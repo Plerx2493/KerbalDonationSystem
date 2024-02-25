@@ -36,6 +36,7 @@ public class Program
         builder.Services.AddSingleton<TwitchAuthService>();
         builder.Services.AddSingleton<DonationService>();
         builder.Services.AddSingleton<ApiAuthService>();
+        builder.Services.AddSingleton<ChannelManagerService>();
         
         // Add services to the container.
         builder.Services.AddRazorComponents()

@@ -1,5 +1,4 @@
-﻿@using MudBlazor
-@using Microsoft.EntityFrameworkCore
+﻿@using Microsoft.EntityFrameworkCore
 @using KDS.Data
 
 @inject IDbContextFactory<ApplicationDbContext> ContextFactory
@@ -8,8 +7,6 @@
 @if (Reward is not null)
 {
     <MudItem>
-
-
         <form class="form-horizontal" action="Account/PerformExternalLogin" method="post">
             <AntiforgeryToken/>
             <MudCard Style="background-color: #1e1c1c;" Elevation="5" Class="pa-4 rounded">
@@ -35,11 +32,11 @@ else
         <form class="form-horizontal" action="Account/PerformExternalLogin" method="post">
             <AntiforgeryToken/>
             <MudCard Style="background-color: #1e1c1c;" Elevation="5" Class="pa-4 rounded">
-                <MudTextField @bind-Value="Reward.Name" Label="Name"/>
-                <MudTextField @bind-Value="Reward.Cost" Label="Cost"/>
-                <MudTextField @bind-Value="Reward.Prompt" Label="Prompt"/>
-                <MudTextField @bind-Value="Reward.Value" Label="Value"/>
-                <MudSwitch @bind-Checked="Reward.IsEnabled" Label="Is Enabled"/>
+                <MudTextField @bind-Value="RewardName" Label="Name"/>
+                <MudTextField @bind-Value="RewardCost" Label="Cost"/>
+                <MudTextField @bind-Value="RewardPrompt" Label="Prompt"/>
+                <MudTextField @bind-Value="RewardValue" Label="Value"/>
+                <MudSwitch @bind-Checked="RewardIsEnabled" Label="Is Enabled"/>
                 <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary">Create</MudButton>
             </MudCard>
         </form>
@@ -50,12 +47,12 @@ else
 @code {
 
     [Parameter]
-    public int? RewardId { get; set; }
+    public ulong? RewardId { get; set; }
 
     [Parameter]
     public bool IsNew { get; set; }
 
-    private ChannelPointReward? Reward { get; set; }
+    private ChannelPointReward? Reward = null;
 
     private string RewardName { get; set; }
     private string RewardPrompt { get; set; }
